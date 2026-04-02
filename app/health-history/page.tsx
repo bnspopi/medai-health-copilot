@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/providers'
 import {
   getDiagnoses,
@@ -10,16 +9,17 @@ import {
 } from '@/lib/supabase'
 import { generatePDFReport, generateShareableLink } from '@/lib/pdf-export'
 import Link from 'next/link'
-import { ArrowLeft, Download, Share2, Trash2, Copy, Loader } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Trash2, Copy } from 'lucide-react'
 
 export default function HealthHistory() {
-  const router = useRouter()
   const { user } = useAuth()
+  const isDemoUser = user?.email === 'demo@medai.health'
+  const isDoctor = user?.role === 'doctor' || user?.email?.endsWith('@medai.health')
+
   const [diagnoses, setDiagnoses] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [shareToken, setShareToken] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
+  const [shareTokens, setShareTokens] = useState<Record<string, string>>({})
+  const [copiedIds, setCopiedIds] = useState<Record<string, boolean>>({})
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -50,24 +50,34 @@ export default function HealthHistory() {
     }
   }
 
-  const handleShare = async (id: string) => {
+  const handleShare = async (
+    id: string,
+    accessMode: 'public' | 'doctor' = 'public'
+  ) => {
     try {
-      setSelectedId(id)
-      const { data } = await createShareableLink(id)
-      if (data && data[0]) {
-        setShareToken(data[0].share_token)
+      const { data, error } = await createShareableLink(id, accessMode)
+      if (error) {
+        console.error('Error creating shareable link:', error)
+        return
+      }
+
+      const token = (data as any)?.[0]?.share_token
+      if (token) {
+        setShareTokens((prev) => ({ ...prev, [id]: token }))
       }
     } catch (error) {
       console.error('Error creating shareable link:', error)
     }
   }
 
-  const handleCopyLink = () => {
-    if (!shareToken) return
-    const link = generateShareableLink(selectedId || '', shareToken)
+  const handleCopyLink = (id: string) => {
+    const token = shareTokens[id]
+    if (!token) return
+
+    const link = generateShareableLink(token)
     navigator.clipboard.writeText(link)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setCopiedIds((prev) => ({ ...prev, [id]: true }))
+    setTimeout(() => setCopiedIds((prev) => ({ ...prev, [id]: false })), 2000)
   }
 
   const handleExportPDF = async (id: string) => {
@@ -171,6 +181,18 @@ export default function HealthHistory() {
           View, export, and share your past diagnoses
         </p>
 
+        {isDemoUser && (
+          <div className="mb-6 p-4 border-l-4 border-blue-500 bg-blue-50 text-blue-700 rounded-lg">
+            Demo mode active: your data is reset periodically. The core workflow is real-time but this account is mock data for quick testing.
+          </div>
+        )}
+
+        {isDoctor && (
+          <div className="mb-6 p-4 border-l-4 border-green-500 bg-green-50 text-green-700 rounded-lg">
+            Doctor access: share links can be marked doctor-only. Use this to keep patient data HIPAA-like private.
+          </div>
+        )}
+
         {diagnoses.length === 0 ? (
           <div className="card text-center py-12">
             <p className="text-gray-600 text-lg mb-4">
@@ -233,6 +255,22 @@ export default function HealthHistory() {
                     >
                       <Download size={18} />
                     </button>
+
+                    <div className="relative">
+                      <select
+                        value={diagnosis.access || 'public'}
+                        onChange={(e) => {
+                          e.stopPropagation()
+                          const access = e.target.value as 'public' | 'doctor'
+                          handleShare(diagnosis.id, access)
+                        }}
+                        className="p-2 rounded-lg border border-gray-300 bg-white text-xs"
+                        title="Share access mode"
+                      >
+                        <option value="public">Public</option>
+                        <option value="doctor">Doctor-only</option>
+                      </select>
+                    </div>
 
                     <button
                       onClick={(e) => {
@@ -299,28 +337,28 @@ export default function HealthHistory() {
                     )}
 
                     {/* Share Link Section */}
-                    {selectedId === diagnosis.id && shareToken && (
+                    {shareTokens[diagnosis.id] && (
                       <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <h4 className="font-bold text-green-700 mb-3">
                           ✅ Shareable Link Created
                         </h4>
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <input
                             type="text"
                             readOnly
-                            value={generateShareableLink(diagnosis.id, shareToken)}
+                            value={generateShareableLink(shareTokens[diagnosis.id])}
                             className="flex-1 px-3 py-2 border border-green-300 rounded-lg bg-white text-sm"
                           />
                           <button
-                            onClick={handleCopyLink}
+                            onClick={() => handleCopyLink(diagnosis.id)}
                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
                           >
                             <Copy size={16} />
-                            {copied ? 'Copied!' : 'Copy'}
+                            {copiedIds[diagnosis.id] ? 'Copied!' : 'Copy'}
                           </button>
                         </div>
                         <p className="text-xs text-green-600 mt-2">
-                          Share this link with your doctor
+                          Share this link with your doctor or patient.
                         </p>
                       </div>
                     )}

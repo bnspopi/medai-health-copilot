@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/providers'
 import { analyzeSymptomsWithAI } from '@/lib/openai'
 import { saveDiagnosis } from '@/lib/supabase'
@@ -9,7 +8,6 @@ import Link from 'next/link'
 import { ArrowLeft, Loader } from 'lucide-react'
 
 export default function SymptomAnalysis() {
-  const router = useRouter()
   const { user } = useAuth()
   const [symptoms, setSymptoms] = useState('')
   const [loading, setLoading] = useState(false)

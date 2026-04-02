@@ -42,8 +42,11 @@ export async function generatePDFReport(
   }
 }
 
-export function generateShareableLink(diagnosisId: string, token: string): string {
-  return `${process.env.NEXT_PUBLIC_APP_URL}/share/${token}`
+export function generateShareableLink(token: string): string {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
+  return `${baseUrl.replace(/\/$/, '')}/share/${token}`
 }
 
 export async function createHealthReportHTML(diagnosis: any): Promise<string> {

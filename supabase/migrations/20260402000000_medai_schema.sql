@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.shared_reports (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   diagnosis_id UUID NOT NULL REFERENCES public.diagnoses(id) ON DELETE CASCADE,
   share_token TEXT NOT NULL UNIQUE,
+  access TEXT NOT NULL DEFAULT 'public',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days')
 );

@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/providers'
 import { analyzeImageWithVision } from '@/lib/openai'
 import { saveDiagnosis } from '@/lib/supabase'
@@ -9,7 +8,6 @@ import Link from 'next/link'
 import { ArrowLeft, Upload, Loader } from 'lucide-react'
 
 export default function SkinAnalysis() {
-  const router = useRouter()
   const { user } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -74,7 +72,6 @@ export default function SkinAnalysis() {
 
     const files = e.dataTransfer.files
     if (files.length > 0) {
-      const file = files[0]
       const event = {
         target: { files },
       } as any

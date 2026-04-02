@@ -1,30 +1,28 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/app/providers'
 import { getDiagnoses } from '@/lib/supabase'
 import { generateHealthTrends } from '@/lib/openai'
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts'
 import Link from 'next/link'
-import { ArrowLeft, Loader } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export default function HealthTrends() {
-  const router = useRouter()
   const { user } = useAuth()
   const [diagnoses, setDiagnoses] = useState<any[]>([])
   const [trends, setTrends] = useState<any>(null)
@@ -95,6 +93,22 @@ export default function HealthTrends() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-healthcare-50 to-healthcare-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full card border-l-4 border-red-600">
+          <div className="flex gap-3">
+            <div className="text-red-600">⚠️</div>
+            <div>
+              <h1 className="text-2xl font-bold text-red-600 mb-2">Error</h1>
+              <p className="text-gray-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const stats = calculateStats()
   const conditionData = Object.entries(stats.conditionCounts)
     .map(([name, value]) => ({ name, value }))
@@ -113,18 +127,20 @@ export default function HealthTrends() {
     })
   )
 
-  const COLORS = [
-    '#0ea5e9',
-    '#3b82f6',
-    '#6366f1',
-    '#8b5cf6',
-    '#a855f7',
-    '#d946ef',
-    '#ec4899',
-    '#f43f5e',
-    '#f97316',
-    '#eab308',
-  ]
+  const accuracyData = (trends?.diagnostic_accuracy_trend || []).map(
+    (value: any, idx: number) => ({
+      period: `T${idx + 1}`,
+      accuracy: Number(value) || 0,
+    })
+  )
+
+  const averageAccuracy =
+    accuracyData.length > 0
+      ? Number(
+          accuracyData.reduce((sum: number, cur: any) => sum + cur.accuracy, 0) /
+            accuracyData.length
+        ).toFixed(1)
+      : null
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-healthcare-50 to-healthcare-100">
@@ -203,6 +219,38 @@ export default function HealthTrends() {
               </ResponsiveContainer>
             </div>
 
+            {accuracyData.length > 0 && (
+              <div className="card">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    📈 Diagnostic Accuracy Trend
+                  </h2>
+                  {averageAccuracy && (
+                    <span className="text-sm text-gray-500">
+                      Average: {averageAccuracy}%
+                    </span>
+                  )}
+                </div>
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={accuracyData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="period" />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="accuracy"
+                      stroke="#0ea5e9"
+                      strokeWidth={3}
+                      dot={{ r: 5 }}
+                      activeDot={{ r: 7 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
             <div className="grid md:grid-cols-2 gap-8">
               {/* Most Diagnosed Conditions */}
               <div className="card">
@@ -241,7 +289,7 @@ export default function HealthTrends() {
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {severityData.map((entry, index) => (
+                      {severityData.map((_, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={['#22c55e', '#eab308', '#ef4444'][index]}

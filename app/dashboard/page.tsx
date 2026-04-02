@@ -5,7 +5,6 @@ import { useAuth } from '@/app/providers'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  Home,
   Activity,
   TrendingUp,
   Image,
@@ -30,10 +29,10 @@ export default function Dashboard() {
 
   if (!mounted || loading || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-healthcare-50 to-healthcare-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-healthcare-600"></div>
-          <p className="mt-4 text-healthcare-600">Loading...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-neon-cyan"></div>
+          <p className="mt-4 text-neon-cyan neon-text">Loading...</p>
         </div>
       </div>
     )
@@ -45,15 +44,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-healthcare-50 to-healthcare-100">
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-dark-900 to-dark-800">
+      <nav className="bg-dark-800/80 backdrop-blur-xl border-b border-cyan-500/30 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-healthcare-600">🏥 MedAI</h1>
+          <h1 className="text-3xl font-bold text-neon-cyan neon-text">🏥 MedAI</h1>
           <div className="flex items-center gap-4">
-            <span className="text-gray-600">{user?.email}</span>
+            <span className="text-dark-300">{user?.email}</span>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 btn-secondary hover:bg-gray-300"
+              className="flex items-center gap-2 btn-secondary hover:bg-dark-600"
             >
               <LogOut size={20} />
               Sign Out
@@ -64,10 +63,10 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-4xl font-bold text-dark-100 mb-4 neon-text">
             Welcome to MedAI Health Copilot
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-dark-400">
             Your AI-powered multimodal healthcare assistant
           </p>
         </div>
@@ -75,16 +74,16 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Symptom Analysis Card */}
           <Link href="/analysis">
-            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full pulse-glow">
               <div className="flex items-center gap-4">
-                <div className="p-4 bg-healthcare-100 rounded-lg">
-                  <Activity className="text-healthcare-600" size={32} />
+                <div className="p-4 bg-cyan-500/20 rounded-lg medical-glow">
+                  <Activity className="text-neon-cyan" size={32} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-bold text-dark-100">
                     Symptom Analysis
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-dark-400">
                     Analyze symptoms with AI
                   </p>
                 </div>
@@ -94,16 +93,16 @@ export default function Dashboard() {
 
           {/* Skin Analysis Card */}
           <Link href="/skin-analysis">
-            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full pulse-glow">
               <div className="flex items-center gap-4">
-                <div className="p-4 bg-blue-100 rounded-lg">
-                  <Image className="text-blue-600" size={32} />
+                <div className="p-4 bg-blue-500/20 rounded-lg medical-glow">
+                  <Image className="text-neon-blue" size={32} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-bold text-dark-100">
                     Skin Analysis
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-dark-400">
                     Vision AI image analysis
                   </p>
                 </div>
@@ -113,16 +112,16 @@ export default function Dashboard() {
 
           {/* Health History Card */}
           <Link href="/health-history">
-            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full pulse-glow">
               <div className="flex items-center gap-4">
-                <div className="p-4 bg-green-100 rounded-lg">
-                  <History className="text-green-600" size={32} />
+                <div className="p-4 bg-green-500/20 rounded-lg medical-glow">
+                  <History className="text-neon-green" size={32} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-bold text-dark-100">
                     Health History
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-dark-400">
                     View past diagnoses
                   </p>
                 </div>
@@ -132,16 +131,16 @@ export default function Dashboard() {
 
           {/* Health Trends Card */}
           <Link href="/health-trends">
-            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full">
+            <div className="card hover:shadow-lg transition-shadow cursor-pointer h-full pulse-glow">
               <div className="flex items-center gap-4">
-                <div className="p-4 bg-purple-100 rounded-lg">
-                  <TrendingUp className="text-purple-600" size={32} />
+                <div className="p-4 bg-purple-500/20 rounded-lg medical-glow">
+                  <TrendingUp className="text-neon-purple" size={32} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-bold text-dark-100">
                     Health Trends
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-dark-400">
                     Disease patterns & analytics
                   </p>
                 </div>

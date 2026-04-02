@@ -17,10 +17,10 @@ export default function SharedReport() {
     const fetchReport = async () => {
       try {
         const report = await getSharedReport(token)
-        if (!report) {
-          setError('Report not found or link has expired')
+        if (report.error) {
+          setError(report.error)
         } else {
-          setDiagnosis(report)
+          setDiagnosis(report.diagnosis)
         }
       } catch (err: any) {
         setError(err.message || 'Error loading report')
