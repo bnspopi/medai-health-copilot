@@ -15,10 +15,12 @@ function AuthForm() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setSuccess('')
     setLoading(true)
 
     try {
@@ -28,8 +30,14 @@ function AuthForm() {
           setLoading(false)
           return
         }
-        await signUpWithEmail(email, password)
-        setError('Sign up successful! Check your email for confirmation.')
+        const signUpData = await signUpWithEmail(email, password)
+
+        if (signUpData.session) {
+          router.push('/dashboard')
+          return
+        }
+
+        setSuccess('Sign up successful! Check your email for confirmation.')
       } else {
         await signInWithEmail(email, password)
         router.push('/dashboard')
@@ -99,6 +107,12 @@ function AuthForm() {
             {error && (
               <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
                 {error}
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm">
+                {success}
               </div>
             )}
 

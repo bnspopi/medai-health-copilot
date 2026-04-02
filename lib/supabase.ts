@@ -9,21 +9,33 @@ export const createSupabaseClient = () => {
 
 export async function signUpWithEmail(email: string, password: string) {
   const supabase = createSupabaseClient()
-  return supabase.auth.signUp({
-    email,
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim().toLowerCase(),
     password,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
   })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
 }
 
 export async function signInWithEmail(email: string, password: string) {
   const supabase = createSupabaseClient()
-  return supabase.auth.signInWithPassword({
-    email,
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
     password,
   })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return data
 }
 
 export async function signOut() {
